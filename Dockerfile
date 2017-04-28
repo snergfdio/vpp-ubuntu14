@@ -1,13 +1,14 @@
 FROM ubuntu:14.04
 MAINTAINER Ed Kern <ejk@cisco.com>
-LABEL Description="VPP ubuntu 14 baseline" Vendor="cisco.com" Version="1.0"
+LABEL Description="VPP ubuntu 14 baseline" 
+LABEL Vendor="cisco.com" 
+LABEL Version="1.0"
 
 
 # Setup the environment
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -q update && \
-    apt-get -y -qq upgrade && \
     apt-get install -y -qq \
         bash \
         bash-completion \
@@ -70,7 +71,8 @@ RUN apt-get -q update && \
         apt-transport-https \
         default-jre-headless \
         chrpath \
-        nasm
+        nasm \
+        && rm -rf /var/lib/apt/lists/*
 
 RUN add-apt-repository -y ppa:openjdk-r/ppa
 
@@ -88,7 +90,8 @@ RUN apt-get -q update && \
         openjdk-8-jdk \
         jq \
         libffi-dev \
-        python-all
+        python-all \
+        && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --set java /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java  && \
     update-alternatives --set javac /usr/lib/jvm/java-7-openjdk-amd64/bin/javac
@@ -144,23 +147,25 @@ RUN apt-get -q update && \
         python-virtualenv \
         python2.7-dev \
         uuid-dev \
-        zlib1g-dev
+        zlib1g-dev \
+        && rm -rf /var/lib/apt/lists/*
 
 RUN gem install package_cloud
 
 
 # Configure locales
-#RUN locale-gen en_US.UTF-8 && \
-#    dpkg-reconfigure locales
+RUN locale-gen en_US.UTF-8 && \
+    dpkg-reconfigure locales
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 # Fix permissions
 RUN chown root:syslog /var/log \
     && chmod 755 /etc/default
 
-RUN mkdir /workspace
-RUN mkdir -p /var/ccache
+RUN mkdir /workspace && mkdir -p /var/ccache && ln -s /var/ccache /tmp/ccache
+
 ENV CCACHE_DIR=/var/ccache
 
 
 
-RUN ln -s /var/ccache /tmp/ccache
