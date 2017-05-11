@@ -113,6 +113,7 @@ RUN apt-get -q update && \
         gettext \
         gettext-base \
         intltool-debian \
+        indent \
         lcov \
         libapr1 \
         libapr1-dev \
