@@ -1,6 +1,6 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Ed Kern <ejk@cisco.com>
-LABEL Description="VPP ubuntu 14 baseline" 
+LABEL Description="VPP ubuntu 16 baseline" 
 LABEL Vendor="cisco.com" 
 LABEL Version="1.0"
 
@@ -90,11 +90,12 @@ RUN apt-get -q update && \
         openjdk-8-jdk \
         jq \
         libffi-dev \
-        python-all \
+	    python-all \
         && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --set java /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java  && \
     update-alternatives --set javac /usr/lib/jvm/java-7-openjdk-amd64/bin/javac
+
 
 RUN apt-get -q update && \
     apt-get install -y -qq \
@@ -118,7 +119,6 @@ RUN apt-get -q update && \
         libapr1 \
         libapr1-dev \
         libasprintf-dev \
-        libasprintf0c2 \
         libbison-dev \
         libconfuse-common \
         libconfuse-dev \
@@ -149,24 +149,27 @@ RUN apt-get -q update && \
         python2.7-dev \
         uuid-dev \
         zlib1g-dev \
+        locales \
+        llvm \
+        clang \
         && rm -rf /var/lib/apt/lists/*
-
-RUN gem install package_cloud
-
 
 # Configure locales
 RUN locale-gen en_US.UTF-8 && \
     dpkg-reconfigure locales
-
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 # Fix permissions
 RUN chown root:syslog /var/log \
     && chmod 755 /etc/default
 
 RUN mkdir /workspace && mkdir -p /var/ccache && ln -s /var/ccache /tmp/ccache
-
 ENV CCACHE_DIR=/var/ccache
+RUN git clone https://gerrit.fd.io/r/vpp /workspace/ubuntu16 && /workspace/ubuntu16/build-root/vagrant/build.sh && rm -rf /workspace/ubuntu16
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
+RUN gem install package_cloud
+RUN pip install scapy
 
 
 
